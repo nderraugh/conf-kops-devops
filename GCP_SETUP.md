@@ -20,3 +20,6 @@ enable compute engine API
 
 verify https://console.developers.google.com/apis/library/compute.googleapis.com?project=kops-orkestra&authuser=1
 
+https://cloud.google.com/container-registry/docs/quickstart
+
+`gcloud auth configure-docker`

@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+export START_TIME=$(date)
+
 export PROJECT=$(gcloud config get-value project)
 export SERVICE_ACCOUNT_NAME=yoppworks-k8s-service-account
 export KEY_FILE=~/.gcloud/kops-orkestra-53724d2ee5a8.json
@@ -34,10 +36,15 @@ kubectl create clusterrolebinding  dashboard-admin --clusterrole=cluster-admin -
 
 kubectl get secret -n default $(kubectl get serviceaccount -n default dashboard -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
 
+echo
 
 kubectl create -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/kubernetes-dashboard/v1.10.1.yaml
 
 kubectl proxy
 
-open http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+echo http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+
+export END_TIME=$(date)
+echo started_at $START_TIME
+echo ended_at   $END_TIME
 
