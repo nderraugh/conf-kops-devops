@@ -25,6 +25,19 @@ kops create cluster $CLUSTER_NAME.k8s.local --zones us-east1-b \
   --kubernetes-version 1.12.7
 ```
 
+# setting up gcr credentials
+
+`kubectl create secret docker-registry gcr-json-key \
+--docker-server=gcr.io \
+--docker-username=_json_key \
+--docker-password="$(cat ~/$GCR_CREDS_FILE)" \
+--docker-email=neil.derraugh@yoppworks.com`
+
+```
+kubectl patch serviceaccount default \
+-p '{"imagePullSecrets": [{"name": "gcr-json-key"}]}'
+```
+
 # deleting a cluster
 
 `kops delete cluster --name=$CLUSTER_NAME.k8s.local --state $KOPS_STATE_STORE --yes`

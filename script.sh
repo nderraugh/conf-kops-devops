@@ -22,7 +22,7 @@ echo $CLUSTER_NAME
 
 kops create cluster $CLUSTER_NAME.k8s.local --zones us-east1-b \
   --state $KOPS_STATE_STORE --project=$PROJECT \
-  --kubernetes-version 1.11.8
+  --kubernetes-version 1.12.7
 
 kops update cluster $CLUSTER_NAME.k8s.local --yes
 
