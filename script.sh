@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+set -v
+
 export START_TIME=$(date)
 
 export PROJECT=$(gcloud config get-value project)
@@ -20,7 +22,7 @@ EE
 
 echo $CLUSTER_NAME
 
-kops create cluster $CLUSTER_NAME.k8s.local --zones us-east1-b \
+kops create cluster $CLUSTER_NAME.k8s.local --zones us-west1-b \
   --state $KOPS_STATE_STORE --project=$PROJECT \
   --kubernetes-version 1.12.7
 
@@ -40,7 +42,16 @@ echo
 
 kubectl create -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/kubernetes-dashboard/v1.10.1.yaml
 
-kubectl proxy
+kubectl create secret docker-registry gcr-json-key \
+  --docker-server=gcr.io \
+  --docker-username=_json_key \
+  --docker-password="$(cat ~/$GCR_CREDS_FILE)" \
+  --docker-email=neil.derraugh@yoppworks.com
+
+kubectl patch serviceaccount default \
+  -p '{"imagePullSecrets": [{"name": "gcr-json-key"}]}'
+
+#kubectl proxy
 
 echo http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
 

@@ -12,7 +12,7 @@ pick your project.
 
 generate a key.
 
-creaet a bucket
+create a bucket
 `gsutil mb gs://kubernetes-clusters-yopp-kops-devops/`
 
 enable compute engine API
