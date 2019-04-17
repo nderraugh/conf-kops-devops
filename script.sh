@@ -4,6 +4,8 @@ set -v
 
 export START_TIME=$(date)
 
+export GCR_ACCOUNT=gcr-viewer
+export GCR_CREDS_FILE=gcr-creds.json
 export PROJECT=$(gcloud config get-value project)
 export SERVICE_ACCOUNT_NAME=yoppworks-k8s-service-account
 export KEY_FILE=~/.gcloud/kops-orkestra-53724d2ee5a8.json
@@ -36,7 +38,7 @@ kubectl create serviceaccount dashboard -n default
 
 kubectl create clusterrolebinding  dashboard-admin --clusterrole=cluster-admin --serviceaccount=default:dashboard
 
-kubectl get secret -n default $(kubectl get serviceaccount -n default dashboard -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
+echo $(kubectl get secret -n default $(kubectl get serviceaccount -n default dashboard -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode)
 
 echo
 
@@ -59,3 +61,18 @@ export END_TIME=$(date)
 echo started_at $START_TIME
 echo ended_at   $END_TIME
 
+
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'      
+helm init --service-account tiller --upgrade
+
+
+sbt orkestraJVM/Docker/publishLocal
+
+docker tag orkestra:0.1.0-SNAPSHOT gcr.io/$PROJECT/orkestra:0.1.0
+
+docker push gcr.io/$PROJECT/orkestra:0.1.0
+
+
+kubectl apply -f ./kubernetes/
