@@ -57,22 +57,12 @@ kubectl patch serviceaccount default \
 
 echo http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
 
-export END_TIME=$(date)
-echo started_at $START_TIME
-echo ended_at   $END_TIME
-
-
 kubectl create serviceaccount --namespace kube-system tiller
 kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
 kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'      
 helm init --service-account tiller --upgrade
 
+export END_TIME=$(date)
+echo started_at $START_TIME
+echo ended_at   $END_TIME
 
-sbt orkestraJVM/Docker/publishLocal
-
-docker tag orkestra:0.1.0-SNAPSHOT gcr.io/$PROJECT/orkestra:0.1.0
-
-docker push gcr.io/$PROJECT/orkestra:0.1.0
-
-
-kubectl apply -f ./kubernetes/
